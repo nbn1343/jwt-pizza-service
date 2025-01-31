@@ -268,6 +268,131 @@ describe('Database', () => {
     });
   });
 
+  describe('getOrders', () => {
+    let mockConnection;
+    const user = { id: 1 };
+    const config = { db: { listPerPage: 10 } };
+  
+    beforeEach(() => {
+      mockConnection = {
+        execute: jest.fn(),
+        end: jest.fn()
+      };
+      DB.getConnection = jest.fn().mockResolvedValue(mockConnection);
+      DB.getOffset = jest.fn((page, perPage) => (page - 1) * perPage);
+      global.config = config;
+    });
+  
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+  
+    test('should fetch orders with items for a user', async () => {
+      const orders = [
+        { id: 1, franchiseId: 101, storeId: 201, date: '2023-05-01' },
+        { id: 2, franchiseId: 102, storeId: 202, date: '2023-05-02' }
+      ];
+      const items1 = [
+        { id: 11, menuId: 1001, description: 'Item 1', price: 10.99 },
+        { id: 12, menuId: 1002, description: 'Item 2', price: 15.99 }
+      ];
+      const items2 = [
+        { id: 21, menuId: 2001, description: 'Item 3', price: 12.99 }
+      ];
+  
+      mockConnection.execute
+        .mockResolvedValueOnce([orders])
+        .mockResolvedValueOnce([items1])
+        .mockResolvedValueOnce([items2]);
+  
+      const result = await DB.getOrders(user);
+  
+      expect(DB.getOffset).toHaveBeenCalledWith(1, config.db.listPerPage);
+      expect(mockConnection.execute).toHaveBeenCalledTimes(3);
+      expect(mockConnection.execute).toHaveBeenNthCalledWith(
+        1,
+        `SELECT id, franchiseId, storeId, date FROM dinerOrder WHERE dinerId=? LIMIT 0,${config.db.listPerPage}`,
+        [user.id]
+      );
+      expect(mockConnection.execute).toHaveBeenNthCalledWith(
+        2,
+        'SELECT id, menuId, description, price FROM orderItem WHERE orderId=?',
+        [1]
+      );
+      expect(mockConnection.execute).toHaveBeenNthCalledWith(
+        3,
+        'SELECT id, menuId, description, price FROM orderItem WHERE orderId=?',
+        [2]
+      );
+  
+      expect(result).toEqual({
+        dinerId: user.id,
+        orders: [
+          { ...orders[0], items: items1 },
+          { ...orders[1], items: items2 }
+        ],
+        page: 1
+      });
+  
+    });
+  
+  });
+  
+  describe('addDinerOrder', () => {
+    let mockConnection;
+    const user = { id: 1 };
+  
+    beforeEach(() => {
+      mockConnection = {
+        execute: jest.fn(),
+        end: jest.fn()
+      };
+      DB.getConnection = jest.fn().mockResolvedValue(mockConnection);
+      DB.getID = jest.fn().mockResolvedValue(1);
+    });
+  
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+  
+    test('should insert diner order and order items', async () => {
+      const order = {
+        franchiseId: 101,
+        storeId: 201,
+        items: [
+          { menuId: 1, description: 'Pizza', price: 10.99 },
+          { menuId: 2, description: 'Pizza', price: 12.99 }
+        ]
+      };
+  
+      mockConnection.execute
+        .mockResolvedValueOnce([{ insertId: 1 }]) 
+        .mockResolvedValueOnce([]) 
+        .mockResolvedValueOnce([]); 
+  
+      const result = await DB.addDinerOrder(user, order);
+  
+      expect(result).toEqual({ ...order, id: 1 });
+      expect(mockConnection.execute).toHaveBeenCalledTimes(3);
+      expect(mockConnection.execute).toHaveBeenNthCalledWith(
+        1,
+        'INSERT INTO dinerOrder (dinerId, franchiseId, storeId, date) VALUES (?, ?, ?, now())',
+        [user.id, order.franchiseId, order.storeId]
+      );
+      expect(mockConnection.execute).toHaveBeenNthCalledWith(
+        2,
+        'INSERT INTO orderItem (orderId, menuId, description, price) VALUES (?, ?, ?, ?)',
+        [1, 1, 'Pizza', 10.99]
+      );
+      expect(mockConnection.execute).toHaveBeenNthCalledWith(
+        3,
+        'INSERT INTO orderItem (orderId, menuId, description, price) VALUES (?, ?, ?, ?)',
+        [1, 1, 'Pizza', 12.99]
+      );
+      expect(DB.getID).toHaveBeenCalledTimes(2);
+    });
+  });
+
 });
 
   
