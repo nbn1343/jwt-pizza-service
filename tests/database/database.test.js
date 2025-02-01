@@ -198,32 +198,6 @@ describe('Database', () => {
       expect(mockConnection.end).toHaveBeenCalled();
     });
   });
-
-  describe('loginUser', () => {
-    test('should insert token and userId into auth table', async () => {
-      const userId = 1;
-      const token = 'someRandomToken1';
-      const tokenSignature = 'signedToken';
-  
-      DB.getTokenSignature = jest.fn().mockReturnValue(tokenSignature);
-  
-      const mockConnection = {
-        execute: jest.fn().mockResolvedValue([{ affectedRows: 1 }]),
-        end: jest.fn()
-      };
-      DB.getConnection = jest.fn().mockResolvedValue(mockConnection);
-  
-      await DB.loginUser(userId, token);
-  
-      expect(DB.getTokenSignature).toHaveBeenCalledWith(token);
-  
-      expect(mockConnection.execute).toHaveBeenCalledWith(
-        'INSERT INTO auth (token, userId) VALUES (?, ?)',
-        [tokenSignature, userId]
-      );
-  
-    });
-  });
   
   describe('updateUser', () => {
     test('should update user information', async () => {

@@ -11,7 +11,8 @@ export default [
     languageOptions: {
       sourceType: "commonjs",
       globals: {
-        ...globals.jest
+        ...globals.jest,
+        ...globals.node
       }
     },
     plugins: {
