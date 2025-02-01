@@ -1,7 +1,5 @@
-// __tests__/database/database.test.js
 const mysql = require('mysql2/promise');
 const { DB } = require('../../src/database/database');
-const config = require('../../src/config');
 const bcrypt = require('bcrypt');
 const Role = { Franchisee: 'franchisee' };
 global.Role = Role;
