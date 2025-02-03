@@ -15,12 +15,12 @@ jobs:
       mysql:
         image: mysql:8.0.29
         env:
-          MYSQL_ROOT_PASSWORD: Nathan1045397!
+          MYSQL_ROOT_PASSWORD: temp_password
           MYSQL_DATABASE: pizza
         ports:
           - '3306:3306'
         options: >-
-          --health-cmd "mysqladmin ping -pNathan1045397!"
+          --health-cmd "mysqladmin ping -ptemp_password"
           --health-interval 10s
           --health-start-period 10s
           --health-timeout 5s
@@ -48,7 +48,7 @@ jobs:
               connection: {
                 host: '127.0.0.1',
                 user: 'root',
-                password: 'Nathan1045397!',
+                password: 'temp_password',
                 database: 'pizza',
                 connectTimeout: 60000,
               },
@@ -72,8 +72,8 @@ jobs:
 
       - name: Update coverage
         run: |
-          coverage_pct=$(grep -o '"pct":[0-9.]*' coverage/coverage-summary.json | head -n 1 | cut -d ':' -f 2)
-          color=$(echo "$coverage_pct < 80" | bc -l | awk '{if ($1) print "yellow"; else print "green"}')
+          coverage=$(jq '.total.lines.pct' coverage/coverage-summary.json)
+          color=$(echo "$coverage < 80" | bc -l | awk '{if ($1) print "red"; else print "green"}')
           curl https://img.shields.io/badge/Coverage-$coverage_pct%25-$color -o coverageBadge.svg
           git config user.name github-actions
           git config user.email github-actions@github.com
