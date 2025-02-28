@@ -1,3 +1,5 @@
+// TEST: Database functions
+
 const mysql = require('mysql2/promise');
 const { DB } = require('../../src/database/database');
 const bcrypt = require('bcrypt');
