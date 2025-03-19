@@ -95,7 +95,6 @@ class Metrics {
     if (req.method === 'POST' && req.path === '/api/order') {
       const originalSend = res.send;
       res.send = function(body) {
-        try {
           const data = JSON.parse(body);
           if (data && data.success) {
             const items = req.body.items || [];
@@ -105,8 +104,6 @@ class Metrics {
             
             metrics.trackPurchase(quantity, revenue, true, latency);
           }
-        } catch (e) {
-        }
         return originalSend.apply(this, arguments);
       };
     }
