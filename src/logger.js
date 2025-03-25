@@ -12,7 +12,6 @@ class Logger {
       }
     
       httpLogger = (req, res, next) => {
-        const startTime = Date.now();
         
         const logRequest = (responseBody) => {
           const logData = {
@@ -108,7 +107,7 @@ class Logger {
     this.log(logData);
   };
   
-  errorHandlerMiddleware = (err, req, res, next) => {
+  errorHandlerMiddleware = (err, req, res) => {
     this.errorLogger(err, req);
     
     res.status(500).json({
@@ -161,12 +160,6 @@ class Logger {
     }).catch(err => {
       console.error('Error sending log to Grafana:', err.message);
     });
-  }
-
-  setLogTypeEnabled(type, enabled) {
-    if (this.enabledLogTypes.hasOwnProperty(type)) {
-      this.enabledLogTypes[type] = enabled;
-    }
   }
 }
 
