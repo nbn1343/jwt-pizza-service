@@ -136,7 +136,6 @@ jobs:
 
     - name: Write config file
       run: |
-        mkdir -p src
         echo "module.exports = {
           jwtSecret: '${{ secrets.JWT_SECRET }}',
           db: {
@@ -155,14 +154,13 @@ jobs:
           },
           metrics: {
             source: 'jwt-pizza-service',
-            userId: ${{ secrets.METRICS_USER_ID }},
             url: '${{ secrets.METRICS_URL }}',
             apiKey: '${{ secrets.METRICS_API_KEY }}',
           },
-          logging:    {
+          logging: {
             source: 'jwt-pizza-logs',
             userId: ${{ secrets.LOGGING_USER_ID }},
             url: '${{ secrets.LOGGING_URL }}',
             apiKey: '${{ secrets.LOGGING_API_KEY }}',
-          },
+          }
         };" > src/config.js
