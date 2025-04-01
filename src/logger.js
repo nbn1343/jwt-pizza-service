@@ -136,26 +136,6 @@ class Logger {
     }
   }
   
-  sendLogToGrafana(event) {
-    // Only attempt to send if configuration exists
-    if (!config.logging || !config.logging.url || !config.logging.userId || !config.logging.apiKey) {
-      console.warn('Cannot send logs to Grafana: Missing configuration');
-      return;
-    }
-    
-    fetch(`${config.logging.url}`, {
-      method: 'post',
-      body: JSON.stringify(event),
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${config.logging.userId}:${config.logging.apiKey}`,
-      },
-    }).then((res) => {
-      if (!res.ok) console.log('Failed to send log to Grafana', res.status);
-    }).catch(err => {
-      console.error('Error sending log to Grafana:', err.message);
-    });
-  }
   
 
   nowString() {
@@ -175,6 +155,12 @@ class Logger {
   }
 
   sendLogToGrafana(event) {
+    // Only attempt to send if configuration exists
+    if (!config.logging || !config.logging.url || !config.logging.userId || !config.logging.apiKey) {
+      console.warn('Cannot send logs to Grafana: Missing configuration');
+      return;
+    }
+    
     fetch(`${config.logging.url}`, {
       method: 'post',
       body: JSON.stringify(event),
