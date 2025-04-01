@@ -118,6 +118,8 @@ class Logger {
   
   log(logData) {
     const sanitizedData = this.sanitize(logData);
+    console.log(`[${sanitizedData.level.toUpperCase()}] [${sanitizedData.type}]:`, sanitizedData);
+    if (config.logging && config.logging.enabled !== false) {
     const labels = { 
       component: config.logging.source, 
       level: sanitizedData.level, 
@@ -128,8 +130,8 @@ class Logger {
 
     this.sendLogToGrafana(logEvent);
     
-    console.log(`[${sanitizedData.level.toUpperCase()}] [${sanitizedData.type}]:`, sanitizedData);
   }
+}
 
   nowString() {
     return (Date.now() * 1000000).toString();
