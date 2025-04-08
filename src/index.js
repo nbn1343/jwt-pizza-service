@@ -1,5 +1,5 @@
 const express = require('express');
-const app = express();
+const app = require('./service.js');
 const metrics = require('./metrics');
 const { logger, errorHandlerMiddleware } = require('./logger');
 const config = require('./config.js');
@@ -169,9 +169,4 @@ app.use(errorHandlerMiddleware);
 const port = process.argv[2] || 3001;
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
-});
-
-process.on('SIGINT', () => {
-  console.log('Server shutting down');
-  process.exit(0);
 });
